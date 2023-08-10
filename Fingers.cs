@@ -281,6 +281,10 @@ public class Fingers
         {
             leap.SetProfile(0, 0, 0, 0, 0, 90);
         }
+        else if (name.Equals("Varjo Aero"))
+        {
+            leap.SetProfile(15, 0, 0, 0, -25, 114);
+        }
         else
         {
             name = "Pimax";
