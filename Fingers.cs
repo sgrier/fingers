@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics; // Vector
 using System.Windows.Forms; // SystemInformation
 using System.Diagnostics; // Debug
 using System.Threading.Tasks;
+using System.Windows.Input;
+using FingersApp;
+using Gma.UserActivityMonitor;
+using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
+using KeyEventHandler = System.Windows.Forms.KeyEventHandler;
 
 public enum RingStatus
 {
@@ -65,6 +71,8 @@ public class Fingers
 
     LoopListener loop;
     LeapHandler leap;
+    
+    HashSet<Keys> pressedKeys = new HashSet<Keys>();
 
     public Fingers(FingersApp.MainWindow mainWindow)
     {
@@ -83,6 +91,30 @@ public class Fingers
 
         // Keep this process running
         Console.ReadLine();
+    }
+
+    public void KeyDown(KeyEventArgs args)
+    {
+        pressedKeys.Add(args.KeyCode);
+        if (pressedKeys.Contains(Keys.F12))
+        {
+            ToggleCursorEnabled();
+        }
+
+        if (pressedKeys.Contains(Keys.F11))
+        {
+            EnableCursor();
+        }
+
+        if (pressedKeys.Contains(Keys.F10))
+        {
+            DisableCursor();
+        }
+    }
+
+    public void KeyUp(KeyEventArgs args)
+    {
+        pressedKeys.Remove(args.KeyCode);
     }
 
     public async Task<bool> Closing()
@@ -204,9 +236,19 @@ public class Fingers
         verticalOffset = (verticalOffset == 0) ? 12 : 0;
     }
 
-    private void ToggleCursorEnabled()
+    public void ToggleCursorEnabled()
     {
         cursorEnabled = !cursorEnabled;
+    }
+
+    private void DisableCursor()
+    {
+        cursorEnabled = false;
+    }
+
+    private void EnableCursor()
+    {
+        cursorEnabled = true;
     }
 
     private long GetTime()

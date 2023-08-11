@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Windows.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using Gma.UserActivityMonitor;
 
 
 namespace FingersApp
@@ -73,9 +65,12 @@ namespace FingersApp
             System.Environment.Exit(0);
             return true;
         }
-
+        
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            HookManager.KeyDown+=new KeyEventHandler(myOnKeyDown);
+            HookManager.KeyUp+=new KeyEventHandler(myOnKeyUp);
+            
             Task workerTask = Task.Run(() => { fingers = new Fingers(this); });
 
             /*
@@ -86,6 +81,16 @@ namespace FingersApp
             FingersThread.IsBackground = true;
             FingersThread.Start();
             */
+        }
+
+        private void myOnKeyDown(object sender, KeyEventArgs e)
+        {
+            fingers.KeyDown(e);
+        }
+        
+        private void myOnKeyUp(object sender, KeyEventArgs e)
+        {
+            fingers.KeyUp(e);
         }
 
         public void SetLeapStatus(String status)
