@@ -14,7 +14,7 @@ public enum RingStatus
 {
     SEARCHING = 1,
     CONNECTING = 2,
-    CONNECTED = 4,
+    CONNECTED = 4
 }
 
 public class Fingers
@@ -68,6 +68,7 @@ public class Fingers
     long lastClicked = 0;
     bool cursorEnabled = true;
     float verticalOffset = 0;
+    bool leapConnected = false;
 
     LoopListener loop;
     LeapHandler leap;
@@ -195,17 +196,13 @@ public class Fingers
 
     public void HandleLeapConnected()
     {
-        ui.Dispatcher.Invoke(() =>
-        {
-            ui.SetLeapStatus("Connected");
-        });
+        leapConnected = true;
+        UpdateLeapStatusMessage(leapConnected, cursorEnabled);
     }
     public void HandleLeapDisconnected()
     {
-        ui.Dispatcher.Invoke(() =>
-        {
-            ui.SetLeapStatus("Connecting...");
-        });
+        leapConnected = false;
+        UpdateLeapStatusMessage(leapConnected, cursorEnabled);
     }
 
     public void HandleHands(HandData left, HandData right)
@@ -236,19 +233,40 @@ public class Fingers
         verticalOffset = (verticalOffset == 0) ? 12 : 0;
     }
 
+    private void UpdateLeapStatusMessage(bool connected, bool enabled)
+    {
+        string message = "Connected";
+        if (!connected)
+        {
+            message = "Connecting...";
+        }
+        else if (!enabled)
+        {
+            message = "Connected [DISABLED]";
+        }
+        
+        ui.Dispatcher.Invoke(() =>
+        {
+            ui.SetLeapStatus(message);
+        });
+    }
+
     public void ToggleCursorEnabled()
     {
         cursorEnabled = !cursorEnabled;
+        UpdateLeapStatusMessage(leapConnected, cursorEnabled);
     }
 
     private void DisableCursor()
     {
         cursorEnabled = false;
+        UpdateLeapStatusMessage(leapConnected, cursorEnabled);
     }
 
     private void EnableCursor()
     {
         cursorEnabled = true;
+        UpdateLeapStatusMessage(leapConnected, cursorEnabled);
     }
 
     private long GetTime()
@@ -379,6 +397,24 @@ public class Fingers
             rightRingBatt = batt;
 
         UpdateRingStatus();
+    }
+
+    public void HandleMouseEvent(MouseButtons button, bool pressed)
+    {
+        switch (button)
+        {
+            case MouseButtons.Left: 
+                leftButtonDown = pressed;
+                break;
+            case MouseButtons.Right:
+                rightButtonDown = pressed;
+                break;
+        }
+        
+        ui.Dispatcher.Invoke(() =>
+        {
+            ui.SetButtonStatus(LoopButton.CENTER, pressed, button == MouseButtons.Right);
+        });
     }
 
     public void HandleLoopEvent(LoopButton b, Boolean pressed, ulong addr)

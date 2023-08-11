@@ -68,8 +68,10 @@ namespace FingersApp
         
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            HookManager.KeyDown+=new KeyEventHandler(myOnKeyDown);
-            HookManager.KeyUp+=new KeyEventHandler(myOnKeyUp);
+            HookManager.KeyDown+=new KeyEventHandler(onKeyDown);
+            HookManager.KeyUp+=new KeyEventHandler(onKeyUp);
+            HookManager.MouseDown += new MouseEventHandler(onMouseDown);
+            HookManager.MouseUp += new MouseEventHandler(onMouseUp);
             
             Task workerTask = Task.Run(() => { fingers = new Fingers(this); });
 
@@ -83,12 +85,22 @@ namespace FingersApp
             */
         }
 
-        private void myOnKeyDown(object sender, KeyEventArgs e)
+        private void onMouseDown(object sender, MouseEventArgs e)
+        {
+            fingers.HandleMouseEvent(e.Button, true);
+        }
+        
+        private void onMouseUp(object sender, MouseEventArgs e)
+        {
+            fingers.HandleMouseEvent(e.Button, false);
+        }
+
+        private void onKeyDown(object sender, KeyEventArgs e)
         {
             fingers.KeyDown(e);
         }
         
-        private void myOnKeyUp(object sender, KeyEventArgs e)
+        private void onKeyUp(object sender, KeyEventArgs e)
         {
             fingers.KeyUp(e);
         }
